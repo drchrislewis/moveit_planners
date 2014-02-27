@@ -344,14 +344,25 @@ ompl_interface::ModelBasedPlanningContextPtr ompl_interface::PlanningContextMana
       logError("Cannot find planning configuration for group '%s'", req.group_name.c_str());
       return ModelBasedPlanningContextPtr();
     }
-  }
+  } 
 
   ModelBasedPlanningContextPtr context = getPlanningContext(pc->second, boost::bind(&PlanningContextManager::getStateSpaceFactory2, this, _1, req));
   if (context)
   {
     context->clear();
-
     robot_state::RobotStatePtr start_state = planning_scene->getCurrentStateUpdated(req.start_state);
+    logInform("*****************In MBPC******************");
+
+    for(std::size_t i=0; i < req.start_state.attached_collision_objects.size(); ++i)
+    {
+      logInform("Attached body msg: %s", req.start_state.attached_collision_objects[i].object.id.c_str());
+    }
+    std::vector<const robot_state::AttachedBody*> attached_bodies;
+    start_state->getAttachedBodies(attached_bodies);
+    for(std::size_t i=0; i < attached_bodies.size(); ++i)
+    {
+      logInform("Attached body: %d, %s", i, attached_bodies[i]->getName().c_str());
+    }
 
     // Setup the context
     context->setPlanningScene(planning_scene);
